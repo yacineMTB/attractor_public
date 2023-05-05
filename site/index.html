@@ -1,120 +1,130 @@
 <!DOCTYPE html>
+
 <html lang="en">
 
 <!-- © 2023 Attractor Research. All Rights Reserved. -->
+<!-- If you're looking at src and judging me, I didn't write this.  -->
+<!-- An artificial intelligence did, called GPT-4. I wrote an extension that plugged it into my code editor :)  -->
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lorenz Attractor with Three.js</title>
+    <title>Attractor Research</title>
     <style>
         body {
+            color: #ffffff;
             margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #00000a;
+            position: relative;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-shadow: 0 0 3px #000000, 0 0 5px #000000;
+            letter-spacing: 0.1em;
         }
 
-        canvas {
-            display: block;
+        #title {
+            font-size: 2.5rem;
+            margin-top: 20px;
+            color: #f5fff2;
+            text-transform: uppercase;
+        }
+
+
+        #attractor {
+            width: 100%;
+            /* flex-grow: 1; */
+            height: 400px;
+            overflow: hidden;
+            z-index: -1;
+            display: flex;
+            margin-top: -90px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #attractor canvas {
+            margin: auto;
+            height: 100%;
+        }
+
+        .services {
+            max-width: 100%;
+            margin-top: -110px;
+            width: 450px;
+            max-width: 100%;
+            text-align: left;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .contact {
+            max-width: 100%;
+            margin-left: auto;
+            margin-top: 10px;
+            margin-right: auto;
+        }
+
+        .research {
+            max-width: 100%;
+            width: 450px;
+            text-align: left;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .patriotism {
+            text-align: left;
+            font-size: 0.75rem;
+            margin-top: 5px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        a {
+            color: greenyellow;
+        }
+
+        p {
+            margin-left: 10px;
+            margin-right: 10px;
         }
     </style>
+
 </head>
 
 <body>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script>
-        const MAX_POINTS = 2000;
+    <div id="title">Attractor Research</div>
+    <div id="attractor"></div>
 
-        // Set up scene, camera, and renderer
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1000);
-        const renderer = new THREE.WebGLRenderer();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.body.appendChild(renderer.domElement);
-        // Lorenz attractor parameters
-        let sigma = 10;
-        let rho = 28;
-        let beta = 8 / 3;
-        const dt = 0.01;
-        const scale = 1; // Scale factor to make the attractor smaller
-
-        const geometry = new THREE.BufferGeometry();
-        let x = 1, y = 1, z = 1;
-        const positions = [x, y, z];
-
-        const material = new THREE.LineBasicMaterial({
-            color: 0xf5fff2,
-            linewidth: 1.5,
-        });
-        const attractorLine = new THREE.Line(geometry, material);
-        scene.add(attractorLine);
-        camera.position.z = 70;
-
-        function getNextPoint(vector) {
-            const dx = sigma * (vector.y - vector.x) * dt;
-            const dy = (vector.x * (rho - vector.z) - vector.y) * dt;
-            const dz = (vector.x * vector.y - beta * vector.z) * dt;
-            vector.x += dx;
-            vector.y += dy;
-            vector.z += dz;
-            return new THREE.Vector3(vector.x * scale, vector.y * scale, vector.z * scale);
-        }
-
-        function updateAttractor() {
-            // Update the parameters over time
-            sigma += 0.0001 * Math.sin(Date.now() * 0.0001);
-            rho += 0.001 * Math.cos(Date.now() * 0.0002);
-            beta += 0.0001 * Math.sin(Date.now() * 0.0003);
-
-            const lastPointIndex = positions.length - 3; // get the index of the last 3D point
-            x = positions[lastPointIndex] / scale;
-            y = positions[lastPointIndex + 1] / scale;
-            z = positions[lastPointIndex + 2] / scale;
-            const drawVector = new THREE.Vector3(x, y, z);
-
-            const nextPoint = getNextPoint(drawVector); // get the next point based on the updated drawVector
-            positions.push(nextPoint.x, nextPoint.y, nextPoint.z); // add the new point to the positions array
-
-            // Remove the oldest points if the maximum number of points is reached
-            const maxPointsReached = positions.length / 3 > MAX_POINTS;
-            if (maxPointsReached) {
-                positions.splice(0, 3); // remove the oldest point (3 values for x, y, z)
-            }
-
-        }
-
-        // Animation loop
-        function animate() {
-            requestAnimationFrame(animate);
-            attractorLine.rotation.y += 0.00004 * Math.cos(Date.now() * 0.0008);
-            // attractorLine.rotation.z += 0.0002 * Math.sin(Date.now() * 0.0005);
-            attractorLine.rotation.x += 0.00008 * Math.sin(Date.now() * 0.0005);
-
-            attractorLine.geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-            attractorLine.geometry.attributes.position.needsUpdate = true;
-            for (let i = 0; i < 1; i++) {
-                updateAttractor();
-            }
-
-            renderer.render(scene, camera);
-        }
-
-        for (let i = 1; i <= MAX_POINTS; i++) {
-            updateAttractor();
-        }
-
-        attractorLine.rotation.z += 2.05
-
-        animate();
-
-        window.addEventListener('resize', function () {
-            const width = window.innerWidth;
-            const height = window.innerHeight;
-            renderer.setSize(width, height);
-            camera.aspect = width / height;
-            camera.updateProjectionMatrix();
-        });
-
-
-    </script>
+    <div class="services">
+        <p>SERVICES</p>
+        <p>Attractor Research builds A.I. & software systems for clients.</p>
+    </div>
+    <div class="research">
+        <p>RESEARCH</p>
+        <p>Can we combine small, novel AI models to uncover new capabilities?</p>
+    </div>
+    <div class="research">
+        <p>CONTACT</p>
+        <p>Let's talk - tell us your problem and we'll tell you how we can help. You'd be surprised about what's possible.</p>
+    </div>
+    <div class="contact">
+        <link href="https://assets.calendly.com/assets/external/widget.css" rel="stylesheet">
+        <script src="https://assets.calendly.com/assets/external/widget.js" type="text/javascript" async></script>
+        <a href="" onclick="Calendly.initPopupWidget({url: 'https://calendly.com/yacinemtb'});return false;">SCHEDULE TIME TO SPEAK</a>
+    </div>
+    <div class="patriotism">
+        <p>Based out of Ottawa, Ontario</p>
+    </div>
+    <!-- Calendly link widget begin -->
+    <!-- Calendly link widget end -->
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<!-- This adds an attractor animation with threejs to the attractor div -->
+<script src="./index.js"> </script>
 </body>
 
 </html>
